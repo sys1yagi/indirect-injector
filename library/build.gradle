@@ -20,3 +20,18 @@ dependencies {
     compile 'com.android.support:appcompat-v7:+'
     compile 'javax.inject:javax.inject:1'
 }
+
+def deployTo = new File(rootDir, "repository")
+
+apply plugin: 'maven'
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository url: "file://${deployTo}"
+            pom.version = '0.0.1'
+            pom.groupId = 'com.sys1yagi'
+            pom.artifactId = 'indirect-injector'
+        }
+    }
+}
