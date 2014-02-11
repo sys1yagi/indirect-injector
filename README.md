@@ -1,7 +1,7 @@
 indirect-injector
 =================
 
-The IndirectInjector is Android library.
+The indirect-injector simplify confusion of communication between activity and fragment, and dependencies.
 
 ## Setup
 
@@ -21,7 +21,59 @@ dependencies {
 
 ## Usage
 
-TODO
+TODO:description
+
+__Activity__
+
+```
+public class MainActivity extends FragmentActivity {
+
+  MainFragment.Callbacks mCallback = new MainFragment.Callbacks() {
+    @Override
+    public void onItemSelected(int id) {
+		//Called from fragment.
+    }
+  }
+
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+
+    IndirectInjector.addDependency(this, mCallback);
+    
+    //initialize
+    //...
+  }
+```
+
+__Fragment__
+
+TODO:description
+
+```
+public class ItemListFragment extends ListFragment {
+
+  public interface Callbacks {
+    public void onItemSelected(int id);
+  }
+
+  @Inject
+  private Callbacks mCallbacks;
+
+  @Override
+  public void onActivityCreated(Bundle savedInstanceState) {
+    super.onActivityCreated(savedInstanceState);
+
+    IndirectInjector.inject(getActivity(), this);
+
+    mCallbacks.onItemSelected(0);
+  }
+}
+```
+
+### Strong Reference
+
+TODO:description
 
 
 ## License
