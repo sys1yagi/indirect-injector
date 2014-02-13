@@ -9,7 +9,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 
-public class ItemListActivity extends FragmentActivity {
+public class MainActivity extends FragmentActivity {
 
     private final static String TAG = ItemListFragment.class.getSimpleName();
 
@@ -47,15 +47,8 @@ public class ItemListActivity extends FragmentActivity {
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
-        Log.d(TAG, "onPause Activity");
+    protected void onDestroy() {
+        super.onDestroy();
+        IndirectInjector.releaseDependencies(this);
     }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        Log.d(TAG, "onStop Activity");
-    }
-
 }

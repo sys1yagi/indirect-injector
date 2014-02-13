@@ -12,8 +12,7 @@ import java.util.Map.Entry;
 
 public class IndirectInjector {
 
-    private static final Map<WeakReference<Object>, List<WeakReference<Object>>> OBJECT_WEAK_MAP
-            = new HashMap<WeakReference<Object>, List<WeakReference<Object>>>();
+    private static final ObjectMap OBJECT_WEAK_MAP = new ObjectMap();
 
     @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
     private static final List<Object> STRONG_REFERENCE_LIST = new ArrayList<Object>();
@@ -25,10 +24,19 @@ public class IndirectInjector {
     public synchronized static void addDependency(Object context, Object dependency,
             boolean isStrong) {
         Logger.d("addDependency:" + context.hashCode());
-        List<WeakReference<Object>> dependencies = getDependencies(context);
+        Dependencies dependencies = getDependencies(context);
         dependencies.add(new WeakReference<Object>(dependency));
         if (isStrong) {
             STRONG_REFERENCE_LIST.add(dependency);
+        }
+    }
+
+    public synchronized static void releaseDependencies(Object context) {
+        Dependencies dependencies = getDependencies(context, false);
+        if (dependencies != null) {
+            for (WeakReference<Object> dependency : dependencies) {
+                STRONG_REFERENCE_LIST.remove(dependency.get());
+            }
         }
     }
 
@@ -52,23 +60,15 @@ public class IndirectInjector {
     }
 
     public synchronized static void sweep() {
-
-        Iterator<Entry<WeakReference<Object>,List<WeakReference<Object>>>> it = OBJECT_WEAK_MAP.entrySet().iterator();
-        while (it.hasNext()) {
-            Entry<WeakReference<Object>, List<WeakReference<Object>>> entry = it.next();
-            WeakReference<Object> objectWeakReference = entry.getKey();
-
-            if (objectWeakReference.get() == null) {
-                it.remove();
-                for (WeakReference<Object> dependencyRef : entry.getValue()) {
-                    Object dependency = dependencyRef.get();
-                    if (dependency != null) {
-                        STRONG_REFERENCE_LIST.remove(dependency);
-                    }
+        OBJECT_WEAK_MAP.sweep(new ObjectMap.OnReleasedListener() {
+            @Override
+            public void onReleased(WeakReference<Object> context, WeakReference<Object> object) {
+                Object dependency = object.get();
+                if (dependency != null) {
+                    STRONG_REFERENCE_LIST.remove(dependency);
                 }
-                Logger.d("release item:" + objectWeakReference.hashCode());
             }
-        }
+        });
     }
 
     private static void inject(Object target, Field field,
@@ -102,11 +102,17 @@ public class IndirectInjector {
         }
     }
 
-    private synchronized static List<WeakReference<Object>> getDependencies(Object context) {
-        sweep();
-        List<WeakReference<Object>> dependencies = null;
+    private synchronized static Dependencies getDependencies(Object context) {
+        return getDependencies(context, true);
+    }
 
-        for (Entry<WeakReference<Object>, List<WeakReference<Object>>> entry : OBJECT_WEAK_MAP.entrySet()) {
+    private synchronized static Dependencies getDependencies(Object context,
+            boolean isCreateNewDependenciesIfNotFound) {
+        sweep();
+        Dependencies dependencies = null;
+
+        for (Entry<WeakReference<Object>, Dependencies> entry : OBJECT_WEAK_MAP
+                .entrySet()) {
             Object object = entry.getKey().get();
             if (context.equals(object)) {
                 Logger.d("find object map");
@@ -115,8 +121,8 @@ public class IndirectInjector {
             }
         }
 
-        if (dependencies == null) {
-            dependencies = new ArrayList<WeakReference<Object>>();
+        if (dependencies == null && isCreateNewDependenciesIfNotFound) {
+            dependencies = new Dependencies();
             WeakReference<Object> objectWeakReference = new WeakReference<Object>(context);
             Logger.d("new map : " + objectWeakReference.hashCode() + " ," + context.hashCode());
             OBJECT_WEAK_MAP.put(objectWeakReference, dependencies);

@@ -103,6 +103,23 @@ public class IndirectInjectorTest extends TestCase {
         assertEquals(initialCount, getStrongRefCount());
     }
 
+    public void testStrongRefRelease() throws Exception {
+        Object context = new Object();
+        Object dependency = new Object();
+
+        final int initialCount = getStrongRefCount();
+
+        IndirectInjector.addDependency(context, dependency, true);
+
+        assertEquals(initialCount + 1, getStrongRefCount());
+
+        IndirectInjector.releaseDependencies(context);
+        System.gc();
+        IndirectInjector.sweep();
+
+        assertEquals(initialCount, getStrongRefCount());
+    }
+
     private static int getStrongRefCount() throws Exception {
         final Field listField = IndirectInjector.class.getDeclaredField("STRONG_REFERENCE_LIST");
         assert (listField.getModifiers() & Modifier.STATIC) != 0;
