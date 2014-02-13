@@ -12,9 +12,15 @@ build:
           echo $ANDROID_BUILD_TOOLS
           echo $ANDROID_UPDATE_FILTER
           echo $ANDROID_NDK_HOME
-    # A step that executes `gradle build` command
+    - android-sdk-update:
+        filter: sysimg-19
+    - setup-android-emulator:
+        target: android-19
+    - script:
+            name: run gradle connectedCheck
+            code: |
+              ./gradlew --project-cache-dir=$WERCKER_CACHE_DIR connectedCheck
     - script:
         name: run gradle
         code: |
-
-          gradle --full-stacktrace -q --project-cache-dir=$WERCKER_CACHE_DIR build
+          ./gradlew --full-stacktrace -q --project-cache-dir=$WERCKER_CACHE_DIR build
