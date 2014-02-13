@@ -60,8 +60,11 @@ public class IndirectInjector {
 
             if (objectWeakReference.get() == null) {
                 it.remove();
-                for (Object dependency : entry.getValue()) {
-                    STRONG_REFERENCE_LIST.remove(dependency);
+                for (WeakReference<Object> dependencyRef : entry.getValue()) {
+                    Object dependency = dependencyRef.get();
+                    if (dependency != null) {
+                        STRONG_REFERENCE_LIST.remove(dependency);
+                    }
                 }
                 Logger.d("release item:" + objectWeakReference.hashCode());
             }
