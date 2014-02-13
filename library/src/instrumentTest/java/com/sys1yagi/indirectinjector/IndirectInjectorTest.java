@@ -3,6 +3,9 @@ package com.sys1yagi.indirectinjector;
 import junit.framework.TestCase;
 
 import java.lang.ref.WeakReference;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -81,5 +84,35 @@ public class IndirectInjectorTest extends TestCase {
         System.gc();
         assertNull(reference.get());
         assertNull(reference2.get());
+    }
+
+    public void testStrongRef() throws Exception {
+        Object context = new Object();
+        Object dependency = new Object();
+
+        final int initialCount = getStrongRefCount();
+
+        IndirectInjector.addDependency(context, dependency, true);
+
+        assertEquals(initialCount + 1, getStrongRefCount());
+
+        context = null;
+        System.gc();
+        IndirectInjector.sweep();
+
+        assertEquals(initialCount, getStrongRefCount());
+    }
+
+    private static int getStrongRefCount() throws Exception {
+        final Field listField = IndirectInjector.class.getDeclaredField("STRONG_REFERENCE_LIST");
+        assert (listField.getModifiers() & Modifier.STATIC) != 0;
+        try {
+            listField.setAccessible(true);
+
+            final List<?> list = (List<?>) listField.get(null);
+            return list.size();
+        } finally {
+            listField.setAccessible(false);
+        }
     }
 }
