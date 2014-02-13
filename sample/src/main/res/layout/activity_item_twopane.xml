@@ -8,7 +8,7 @@
     android:divider="?android:attr/dividerHorizontal"
     android:orientation="horizontal"
     android:showDividers="middle"
-    tools:context="com.sys1yagi.indirectinjector.sample.ItemListActivity">
+    tools:context="com.sys1yagi.indirectinjector.sample.MainActivity">
 
     <!--
     This layout is a two-pane layout for the Items
