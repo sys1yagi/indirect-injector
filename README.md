@@ -1,6 +1,8 @@
 indirect-injector
 =================
 
+[![wercker status](https://app.wercker.com/status/866c999f0a12c15c67bf9b661164a744/m/ "wercker status")](https://app.wercker.com/project/bykey/866c999f0a12c15c67bf9b661164a744)
+
 The indirect-injector simplify confusion of communication between activity and fragment, and dependencies.
 
 ## Setup
