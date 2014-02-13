@@ -28,7 +28,7 @@ __Activity__
 ```
 public class MainActivity extends FragmentActivity {
 
-  MainFragment.Callbacks mCallback = new MainFragment.Callbacks() {
+  ItemListFragment.Callbacks mCallback = new ItemListFragment.Callbacks() {
     @Override
     public void onItemSelected(int id) {
 		//Called from fragment.
