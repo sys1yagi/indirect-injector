@@ -1,21 +1,22 @@
 package com.sys1yagi.indirectinjector;
 
-import android.util.Log;
-
 import java.lang.annotation.Annotation;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 public class IndirectInjector {
 
-    private static Map<WeakReference<Object>, List<WeakReference<Object>>> OBJECT_WEAK_MAP
+    private static final Map<WeakReference<Object>, List<WeakReference<Object>>> OBJECT_WEAK_MAP
             = new HashMap<WeakReference<Object>, List<WeakReference<Object>>>();
 
-    private static List<Object> STRONG_REFERENCE_LIST = new ArrayList<Object>();
+    @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
+    private static final List<Object> STRONG_REFERENCE_LIST = new ArrayList<Object>();
 
     public synchronized static void addDependency(Object context, Object dependency) {
         addDependency(context, dependency, false);
@@ -31,7 +32,7 @@ public class IndirectInjector {
         }
     }
 
-    public synchronized static <T> void inject(Object context, T target) {
+    public synchronized static void inject(Object context, Object target) {
         Logger.d("inject...:" + context.hashCode());
         List<WeakReference<Object>> dependencies = getDependencies(context);
 
@@ -52,42 +53,37 @@ public class IndirectInjector {
 
     public synchronized static void sweep() {
 
-        Map<WeakReference<Object>, List<WeakReference<Object>>> newMap
-                = new HashMap<WeakReference<Object>, List<WeakReference<Object>>>();
+        Iterator<Entry<WeakReference<Object>,List<WeakReference<Object>>>> it = OBJECT_WEAK_MAP.entrySet().iterator();
+        while (it.hasNext()) {
+            Entry<WeakReference<Object>, List<WeakReference<Object>>> entry = it.next();
+            WeakReference<Object> objectWeakReference = entry.getKey();
 
-        for (WeakReference<Object> objectWeakReference : OBJECT_WEAK_MAP.keySet()) {
-            if (objectWeakReference.get() != null) {
-                newMap.put(objectWeakReference, OBJECT_WEAK_MAP.get(objectWeakReference));
-            } else {
-                List<WeakReference<Object>> dependencies = OBJECT_WEAK_MAP.get(objectWeakReference);
-                for (Object dependency : dependencies) {
+            if (objectWeakReference.get() == null) {
+                it.remove();
+                for (Object dependency : entry.getValue()) {
                     STRONG_REFERENCE_LIST.remove(dependency);
                 }
                 Logger.d("release item:" + objectWeakReference.hashCode());
             }
         }
-
-        OBJECT_WEAK_MAP = newMap;
     }
 
-    private static <T> void inject(T target, Field field,
+    private static void inject(Object target, Field field,
             List<WeakReference<Object>> dependencies) {
         field.setAccessible(true);
-        Class type = field.getType();
-        Logger.d("type:" + field.getType());
+        Class<?> type = field.getType();
+        Logger.d("type:" + type);
         Logger.d("map size:" + dependencies.size());
         try {
             for (WeakReference<Object> dependency : dependencies) {
                 Object object = dependency.get();
                 if (object != null) {
                     Logger.d("seek:" + object.getClass().getName());
-                    if (object.getClass().equals(type)
-                            || type.isAssignableFrom(object.getClass())
-                            ) {
+                    if (type.isAssignableFrom(object.getClass())) {
                         Logger.d("do inject!");
                         try {
                             Logger.d("set dependency!");
-                            field.set((T) target, object);
+                            field.set(target, object);
                         } catch (IllegalAccessException e) {
                             Logger.d("inject failed!");
                             e.printStackTrace();
@@ -107,11 +103,11 @@ public class IndirectInjector {
         sweep();
         List<WeakReference<Object>> dependencies = null;
 
-        for (WeakReference<Object> objectWeakReference : OBJECT_WEAK_MAP.keySet()) {
-            Object object = objectWeakReference.get();
+        for (Entry<WeakReference<Object>, List<WeakReference<Object>>> entry : OBJECT_WEAK_MAP.entrySet()) {
+            Object object = entry.getKey().get();
             if (context.equals(object)) {
                 Logger.d("find object map");
-                dependencies = OBJECT_WEAK_MAP.get(objectWeakReference);
+                dependencies = entry.getValue();
                 break;
             }
         }
