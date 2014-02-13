@@ -41,7 +41,7 @@ public class ItemListFragment extends ListFragment {
         Log.d(TAG, "onCreate");
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(
                 getActivity(),
-                android.R.layout.simple_list_item_activated_1,
+                android.R.layout.simple_list_item_1,
                 android.R.id.text1);
 
         for (int i = 0; i < 20; i++) {
