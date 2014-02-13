@@ -1,9 +1,14 @@
 indirect-injector
 =================
-
-[![wercker status](https://app.wercker.com/status/1af8846b7749a90ee2fabd12ebfad71e/m/ "wercker status")](https://app.wercker.com/project/bykey/1af8846b7749a90ee2fabd12ebfad71e)
-
 The indirect-injector simplify confusion of communication between activity and fragment, and dependencies.
+
+[![wercker status](https://app.wercker.com/status/1af8846b7749a90ee2fabd12ebfad71e/s/ "wercker status")](https://app.wercker.com/project/bykey/1af8846b7749a90ee2fabd12ebfad71e)
+
+## Problem
+
+![problem](https://raw.github.com/sys1yagi/indirect-injector/master/art/problem.png)
+
+Yes. Here's the answer.
 
 ## Setup
 
