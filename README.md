@@ -21,7 +21,7 @@ repositories {
 }
 
 dependencies {
-    compile 'com.sys1yagi:indirect-injector:0.0.1'
+    compile 'com.sys1yagi:indirect-injector:0.0.2'
 }
 
 ```
