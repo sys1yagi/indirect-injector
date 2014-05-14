@@ -17,7 +17,7 @@ Gradle:
 ```
 repositories {
     mavenCentral()
-    maven { url 'https://raw.github.com/sys1yagi/indirect-injector/master/repository' }
+    maven { url 'https://raw.githubusercontent.com/sys1yagi/indirect-injector/master/repository' }
 }
 
 dependencies {

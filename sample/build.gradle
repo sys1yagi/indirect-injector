@@ -2,12 +2,12 @@ apply plugin: 'android'
 
 repositories {
     mavenCentral()
-    maven { url 'https://raw.github.com/sys1yagi/indirect-injector/master/repository' }
+    maven { url 'https://raw.githubusercontent.com/sys1yagi/indirect-injector/master/repository' }
 }
 
 android {
     compileSdkVersion 19
-    buildToolsVersion "19.0.1"
+    buildToolsVersion "19.0.3"
 
     defaultConfig {
         minSdkVersion 11
