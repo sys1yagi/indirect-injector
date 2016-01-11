@@ -13,9 +13,9 @@ build:
           echo $ANDROID_UPDATE_FILTER
           echo $ANDROID_NDK_HOME
     - android-sdk-update:
-        filter: sysimg-19
+        filter: sysimg-23
     - setup-android-emulator:
-        target: android-19
+        target: android-23
     - script:
             name: run gradle connectedCheck
             code: |
